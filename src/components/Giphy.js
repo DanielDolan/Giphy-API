@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Search from "./SearchField";
+import "./style.css"
 import axios from "axios";
 import ReactDOM from 'react-dom';
 
@@ -7,78 +8,280 @@ class Giphy extends Component {
     constructor(props) {
       super(props);
      // NOT SURE IF RIGHT 
-     this.state = { 
-       word: "", 
-       giphs: [], 
-       searchInput: "Funny cats" };
+     this.state = {        
+       gifs: [], 
+       searchInput: "",
+       currentLink: "http://api.giphy.com/v1/gifs/trending?",       
+       limitValue: 20,
+       limit: "&limit=20", 
+       searchState: "trending"
+      };    
     }                  
   
 
   componentDidMount(){
     axios
-    .get("http://api.giphy.com/v1/gifs/search?q=" + this.state.searchInput +"&api_key=" + 
-    process.env.REACT_APP_GIPHY_API_KEY +"&limit=20")
+    .get(this.state.currentLink + this.state.searchInput +"&api_key=" + 
+    process.env.REACT_APP_GIPHY_API_KEY + this.state.limit)
     .then((response) =>{            
-        this.setState({giphs:response.data.data});
-        let output = []; //output collector
+        this.setState({gifs:response.data.data});  
 
-        //map and select query results
-        output = response.data.data.map(gvalue => 
-        <div className="query-result">                
-            <div className="query-data-box">
-                <div className="gif-image">
-                    <img src ={gvalue.images.original.url}/>
-                </div>
-            </div>         
-        </div>);   
-        ReactDOM.render(output,
-          document.getElementsByClassName("results-output")[0]);        
+        if(this.state.searchState === "trending" ||
+        this.state.searchState === "search")
+        {
+          let output = []; //output collector
+          //map and select query results
+          output = this.state.gifs.map(gvalue => 
+            <div className="query-result">                
+                <div className="query-data-box">
+                    <div className="gif-image">
+                        <img src ={gvalue.images.original.url}/>
+                    </div>
+                </div>         
+            </div>);   
+          ReactDOM.render(output,
+            document.getElementsByClassName("results-output")[0]);
+        }
+        else if(this.state.searchState === "random")
+        {
+          let output = []; //output collector
+          //map and select query results
+          output = (
+            <div className="query-result">                
+                <div className="query-data-box">
+                    <div className="gif-image">                        
+                        <img src ={this.state.gifs.image_url}/>
+                    </div>
+                </div>         
+            </div>);   
+          ReactDOM.render(output,
+            document.getElementsByClassName("results-output")[0]);
+        }
+                 
     })
-    .catch((err) => console.log(err)); //send an error message to the console 
+    .catch((err) => console.log(err)); //send an error message to the console     
   }
 
 
-  printGiphs = () => {        
-       
-    let output = []; //output collector
+  getJSON = () =>{
+    console.log(this.state.currentLink + this.state.searchInput +"&api_key=" + 
+    process.env.REACT_APP_GIPHY_API_KEY + this.state.limit);
+    return axios.get(this.state.currentLink + this.state.searchInput +"&api_key=" + 
+    process.env.REACT_APP_GIPHY_API_KEY + this.state.limit).then(
+      response => {
+        return response.data.data;
+      }
+    )    
+  }
 
+  setGif = () =>{
+    ReactDOM.render((<div>Loading...</div>),
+      document.getElementsByClassName("results-output")[0]);
+    this.getJSON().then(
+      data => {
+        console.log(data);        
+        this.setState({gifs: data},
+          this.decidePrint);
+      })        
+    .catch((err) => console.log(err)); //send an error message to the console
+  }
+
+  decidePrint = () => {
+    if(this.state.searchState === "trending" ||
+    this.state.searchState === "search")
+    {
+      this.printTrendingOrSearchGifs();
+    }
+    else if(this.state.searchState === "random"){
+      this.printRandomSearchGifs();
+    }
+  }
+
+  printTrendingOrSearchGifs = () => { 
+    let output = []; //output collector
     //map and select query results
-    output = this.state.giphs.map(gvalue => 
-    <div className="query-result">                
-        <div className="query-data-box">
-            <div className="query-data">
-                <div>{console.log(gvalue)}</div>
-            </div>
-        </div>         
-    </div>);       
-    
-    //render query results
-    ReactDOM.render(
-        output,
-        document.getElementsByClassName("results-output")[0]
-    );
+    output = this.state.gifs.map(gvalue => 
+      <div className="query-result">                
+          <div className="query-data-box">
+              <div className="gif-image">
+                  <img src ={gvalue.images.original.url}/>
+              </div>
+          </div>         
+      </div>);   
+    ReactDOM.render(output,
+      document.getElementsByClassName("results-output")[0]);
+        
+  }
+
+  printRandomSearchGifs = () => {         
+
+    let output = []; //output collector
+    //map and select query results
+    output = (
+      <div className="query-result">                
+          <div className="query-data-box">
+              <div className="gif-image">                        
+                  <img src ={this.state.gifs.image_url}/>
+              </div>
+          </div>         
+      </div>);   
+    ReactDOM.render(output,
+      document.getElementsByClassName("results-output")[0]);
+   
   }
 
   render()
   {
-    return(
+    if(this.state.searchState !== "random")
+    {
+        return(
+          <>
+          <h1>GIPHY API Accessor</h1>
+            <div className = "buttons">           
+              <button 
+              className="button-find"
+              onClick={() => {
+                //change everything related to search
+                this.componentDidMount();                        
+              }}>
+                Find                    
+              </button>
+
+              <button 
+              className="button-trending"
+              onClick={() => {
+                this.setState(
+                  {currentLink:"http://api.giphy.com/v1/gifs/trending?",
+                  searchState:"trending",
+                  searchInput: "",
+                  limit: "&limit=20"
+                  },             
+                  this.setGif
+                  );
+                                      
+              }}>
+                Trending                    
+              </button>           
+
+              <button 
+              className="button-random"
+              onClick={() => {                 
+                this.setState(
+                {currentLink:"http://api.giphy.com/v1/gifs/random?",
+                searchState:"random",
+                searchInput: "",
+                limit: "",
+                limitValue: 20
+                },             
+                this.setGif
+                );          
+                                                    
+              }}>
+                Random                    
+              </button>
+
+              <br></br>
+
+              <div classItem="limit-field">
+                
+                <input 
+                  className="display-prompt-line" 
+                  type="text" 
+                  onChange={(event) => this.setState({ 
+                    limitValue: event.target.value                
+                  })}             
+                  placeholder={this.state.limitValue}
+                />
+
+                <button 
+                className="button-limit" 
+                onClick={() => { 
+                  this.setState({limit: "&limit=" + this.state.limitValue},
+                  this.setGif  
+                  );                
+                                                                    
+                }}>
+                  Go                    
+                </button>
+              </div>
+              
+
+              
+            </div>
+            <div className="results-output">
+                
+            </div>
+            
+          </>
+      );
+    }
+    else{
+      return(
         <>
-          <div>           
-            <button
-                        className="button-find"
-                        onClick={() => {
-                            this.componentDidMount();                        
-                        }}
-                        >
-                        Find
-                    </button>
+          <h1>GIPHY API Accessor</h1>
+          <div className = "buttons">           
+            <button 
+            className="button-find"
+            onClick={() => {
+              //change everything related to search
+              this.componentDidMount();                        
+            }}>
+              Find                    
+            </button>
+
+            <button 
+            className="button-trending"
+            onClick={() => {
+              this.setState(
+                {currentLink:"http://api.giphy.com/v1/gifs/trending?",
+                searchState:"trending",
+                searchInput: "",
+                limit: "&limit=20"
+                },             
+                this.setGif
+                );
+                                    
+            }}>
+              Trending                    
+            </button>           
+
+            <button 
+            className="button-random"
+            onClick={() => {                 
+              this.setState(
+              {currentLink:"http://api.giphy.com/v1/gifs/random?",
+              searchState:"random",
+              searchInput: "",
+              limit: ""
+              },             
+              this.setGif
+              );          
+                                                  
+            }}>
+              Random                    
+            </button>
+
+            <br></br>
+
+            <div classItem="limit-field">
+              
+            </div>
+            
+            
+            
           </div>
           <div className="results-output">
-
+              
           </div>
           
         </>
     );
+
+    }
+    
+
+   
+    
   }
 }
 
