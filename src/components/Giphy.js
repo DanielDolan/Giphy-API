@@ -6,58 +6,49 @@ import ReactDOM from 'react-dom';
 class Giphy extends Component {
     constructor(props) {
       super(props);
-     // NOT SURE IF RIGHT 
      this.state = { 
-       word: "", 
-       giphs: [], 
-       searchInput: "Funny cats" };
+       gifs: [], 
+       searchInput: "hamster" ,
+       currentLink:"http://api.giphy.com/v1/gifs/trending?",
+       limit: "&limit=20",
+       searchState: "trending"
+    };
     }                  
   
 
-  componentDidMount(){
-    axios
-    .get("http://api.giphy.com/v1/gifs/search?q=" + this.state.searchInput +"&api_key=" + 
-    process.env.REACT_APP_GIPHY_API_KEY +"&limit=20")
-    .then((response) =>{            
-        this.setState({giphs:response.data.data});
+    componentDidMount(){
+        axios
+        .get(this.state.currentLink + this.state.searchInput +"&api_key=" + 
+        process.env.REACT_APP_GIPHY_API_KEY + this.state.limit)
+        .then((response) =>{            
+            this.setState({gifs:response.data.data});
+            if(this.state.searchState === "trending" || 
+            this.state.searchState === "search"){
+              this.printTrendingOrSearchGifs();
+            }
+            else if (this.state.searchState === "random")
+            {
+            }        
+                 
+        })
+        .catch((err) => console.log(err)); //send an error message to the console 
+      }
+      printTrendingOrSearchGifs = () => {     
+           
         let output = []; //output collector
-
         //map and select query results
-        output = response.data.data.map(gvalue => 
-        <div className="query-result">                
-            <div className="query-data-box">
-                <div className="gif-image">
-                    <img src ={gvalue.images.original.url}/>
-                </div>
-            </div>         
-        </div>);   
+        output = this.state.gifs.map(gvalue => 
+          <div className="query-result">                
+              <div className="query-data-box">
+                  <div className="gif-image">
+                      <img src ={gvalue.images.original.url}/>
+                  </div>
+              </div>         
+          </div>);   
         ReactDOM.render(output,
-          document.getElementsByClassName("results-output")[0]);        
-    })
-    .catch((err) => console.log(err)); //send an error message to the console 
-  }
+          document.getElementsByClassName("results-output")[0]);
+      }
 
-
-  printGiphs = () => {        
-       
-    let output = []; //output collector
-
-    //map and select query results
-    output = this.state.giphs.map(gvalue => 
-    <div className="query-result">                
-        <div className="query-data-box">
-            <div className="query-data">
-                <div>{console.log(gvalue)}</div>
-            </div>
-        </div>         
-    </div>);       
-    
-    //render query results
-    ReactDOM.render(
-        output,
-        document.getElementsByClassName("results-output")[0]
-    );
-  }
 
   render()
   {

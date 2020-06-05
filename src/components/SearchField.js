@@ -1,12 +1,30 @@
-import React from "react";
+import React, { Component } from "react";
 
-const Search = ({ value, onChange, onSearch }) => {
-  return (
-    <div className="search">
-      <input value={value} onChange={onChange} />
-      <button onClick={onSearch}>Search</button>
-    </div>
-  );
-};
+class SearchField extends Component {
+  constructor(props) {
+    super(props);
 
-export default Search;
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange = (e) => {
+    this.props.search(e.target.value);
+  };
+
+  render() {
+    return (
+      <div className="mb-4">
+        <form action="" className="formsearch">
+          <input
+            type="text"
+            className="form-control mr-4"
+            placeholder="Please enter a GIF to search for"
+            onChange={this.handleChange}
+          />
+        </form>
+      </div>
+    );
+  }
+}
+
+export default SearchField;

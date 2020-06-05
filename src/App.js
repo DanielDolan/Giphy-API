@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import logo from './logo.svg';
+import SearchField from './components/SearchField';
 import './App.css';
 import Giphy from './components/Giphy';
 
@@ -9,7 +9,6 @@ class App extends Component{
   render(){
     return (
       <div className="App">
-        
         <Giphy/>
       </div>
     );
