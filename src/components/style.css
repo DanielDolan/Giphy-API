@@ -1,0 +1,25 @@
+.results-output{
+    display: flex;
+    flex-direction: column;    
+    justify-content: start;
+}
+
+.limit-field{  
+    display: flex;
+    flex-direction: row;
+    justify-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.display-prompt-line{
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    margin-left: 10px;    
+}
+
+.limit-text{
+    font-size: calc(20px );
+}

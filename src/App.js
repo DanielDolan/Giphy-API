@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import SearchField from './components/SearchField';
 import './App.css';
 import Giphy from './components/Giphy';
 
@@ -9,7 +8,14 @@ class App extends Component{
   render(){
     return (
       <div className="App">
-        <Giphy/>
+
+        <header className="App-header">
+          
+          <Giphy/>          
+          
+        </header>
+        
+
       </div>
     );
   }
