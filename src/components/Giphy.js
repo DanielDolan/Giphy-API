@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom';
 class Giphy extends Component {
     constructor(props) {
       super(props);
+
      // NOT SURE IF RIGHT 
      this.state = {        
        gifs: [], 
@@ -111,9 +112,8 @@ class Giphy extends Component {
    
   }
 
-  handleChangeValue = (e) => this.setState({value: e.target.value});
 
-  render()
+ render()
   {
     if(this.state.searchState === "search")
     {
