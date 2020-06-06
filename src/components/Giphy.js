@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Search from "./SearchField";
+import SearchField from "./SearchField";
 import "./style.css"
 import axios from "axios";
 import ReactDOM from 'react-dom';
@@ -14,7 +14,8 @@ class Giphy extends Component {
        currentLink: "http://api.giphy.com/v1/gifs/trending?",       
        limitValue: 20,
        limit: "&limit=20", 
-       searchState: "trending"
+       searchState: "trending",
+       serachField: SearchField, 
       };    
     }                  
   
@@ -26,8 +27,7 @@ class Giphy extends Component {
     .then((response) =>{            
         this.setState({gifs:response.data.data});  
 
-        if(this.state.searchState === "trending" ||
-        this.state.searchState === "search")
+        if(this.state.searchState === "trending")
         {
           let output = []; //output collector
           //map and select query results
@@ -41,31 +41,14 @@ class Giphy extends Component {
             </div>);   
           ReactDOM.render(output,
             document.getElementsByClassName("results-output")[0]);
-        }
-        else if(this.state.searchState === "random")
-        {
-          let output = []; //output collector
-          //map and select query results
-          output = (
-            <div className="query-result">                
-                <div className="query-data-box">
-                    <div className="gif-image">                        
-                        <img src ={this.state.gifs.image_url}/>
-                    </div>
-                </div>         
-            </div>);   
-          ReactDOM.render(output,
-            document.getElementsByClassName("results-output")[0]);
-        }
+        }       
                  
     })
     .catch((err) => console.log(err)); //send an error message to the console     
   }
 
 
-  getJSON = () =>{
-    console.log(this.state.currentLink + this.state.searchInput +"&api_key=" + 
-    process.env.REACT_APP_GIPHY_API_KEY + this.state.limit);
+  getJSON = () =>{    
     return axios.get(this.state.currentLink + this.state.searchInput +"&api_key=" + 
     process.env.REACT_APP_GIPHY_API_KEY + this.state.limit).then(
       response => {
@@ -78,8 +61,7 @@ class Giphy extends Component {
     ReactDOM.render((<div>Loading...</div>),
       document.getElementsByClassName("results-output")[0]);
     this.getJSON().then(
-      data => {
-        console.log(data);        
+      data => {              
         this.setState({gifs: data},
           this.decidePrint);
       })        
@@ -87,8 +69,7 @@ class Giphy extends Component {
   }
 
   decidePrint = () => {
-    if(this.state.searchState === "trending" ||
-    this.state.searchState === "search")
+    if(this.state.searchState === "trending")
     {
       this.printTrendingOrSearchGifs();
     }
@@ -130,19 +111,93 @@ class Giphy extends Component {
    
   }
 
+  handleChangeValue = (e) => this.setState({value: e.target.value});
+
   render()
   {
-    if(this.state.searchState !== "random")
+    if(this.state.searchState === "search")
+    {
+      return(
+        <>
+        <h1>GIPHY API Accessor</h1>
+
+        <div className = "buttons">           
+          <button 
+          className="button-find"
+          onClick={() => {
+            //change everything related to search
+            this.setState(
+              {
+              searchState:"search",                  
+              }               
+              
+              );                    
+          }}>
+            Find                    
+          </button>
+
+          <button 
+          className="button-trending"
+          onClick={() => {
+            this.setState(
+              {currentLink:"http://api.giphy.com/v1/gifs/trending?",
+              searchState:"trending",
+              searchInput: "",
+              limit: "&limit=20"
+              },             
+              this.setGif
+              );
+                                  
+          }}>
+            Trending                    
+          </button>           
+
+          <button 
+          className="button-random"
+          onClick={() => {                 
+            this.setState(
+            {currentLink:"http://api.giphy.com/v1/gifs/random?",
+            searchState:"random",
+            searchInput: "",
+            limit: "",
+            limitValue: 20
+            },             
+            this.setGif
+            );          
+                                                
+          }}>
+            Random                    
+          </button>
+        </div>
+        
+          
+          <div>
+             <SearchField/>
+          </div>
+
+        </>
+
+      );
+
+
+      
+    }
+    else if(this.state.searchState === "trending")
     {
         return(
           <>
-          <h1>GIPHY API Accessor</h1>
+          <h1>GIPHY API Accessor</h1>          
             <div className = "buttons">           
               <button 
               className="button-find"
               onClick={() => {
                 //change everything related to search
-                this.componentDidMount();                        
+                this.setState(
+                  {
+                  searchState:"search",                  
+                  }               
+                  
+                  );               
               }}>
                 Find                    
               </button>
@@ -160,7 +215,7 @@ class Giphy extends Component {
                   );
                                       
               }}>
-                Trending                    
+                Trending                  
               </button>           
 
               <button 
@@ -179,12 +234,13 @@ class Giphy extends Component {
               }}>
                 Random                    
               </button>
-
-              <br></br>
-
-              <div classItem="limit-field">
-                
-                <input 
+            </div>
+              
+                                     
+              
+              <div className="limit-field">
+                <label className="limit-text">Limit Results: </label>
+                <input
                   className="display-prompt-line" 
                   type="text" 
                   onChange={(event) => this.setState({ 
@@ -204,10 +260,12 @@ class Giphy extends Component {
                   Go                    
                 </button>
               </div>
+              <div>Trending GIFs:</div>   
+              <br></br> 
               
 
               
-            </div>
+            
             <div className="results-output">
                 
             </div>
@@ -215,7 +273,7 @@ class Giphy extends Component {
           </>
       );
     }
-    else{
+    else if(this.state.searchState === "random"){
       return(
         <>
           <h1>GIPHY API Accessor</h1>
@@ -224,7 +282,11 @@ class Giphy extends Component {
             className="button-find"
             onClick={() => {
               //change everything related to search
-              this.componentDidMount();                        
+              this.setState(
+                {
+                searchState:"search",                  
+                }               
+              );                    
             }}>
               Find                    
             </button>
@@ -260,16 +322,17 @@ class Giphy extends Component {
             }}>
               Random                    
             </button>
-
-            <br></br>
-
-            <div classItem="limit-field">
+          </div>
+            
+            <div className="limit-field">
               
             </div>
             
+            <br></br>
+            <div>Random GIF:</div> 
+            <br></br>
             
-            
-          </div>
+          
           <div className="results-output">
               
           </div>
