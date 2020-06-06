@@ -1,7 +1,6 @@
 .results-output{
     display: flex;
-    flex-direction: column;    
-    justify-content: start;
+    flex-direction: column;
 }
 
 .limit-field{  
@@ -22,4 +21,13 @@
 
 .limit-text{
     font-size: calc(20px );
+}
+.gif-image{
+    display: inline-block;
+    border-style: outset;
+    border-color: rgb(59, 62, 240);
+    width:100%;
+    height:auto;
+    padding-top:15px ;
+    padding-bottom: 10px;
 }
